@@ -22,7 +22,7 @@ class PreProcessing:
 
         gray = cv2.cvtColor(opencvImage, cv2.COLOR_BGR2GRAY)
         # eq = cv2.equalizeHist(gray)
-        smooth = cv2.GaussianBlur(gray, (7, 7), 0)
+        smooth = cv2.GaussianBlur(gray, (5, 5), 0)
         cv2.imshow("smooth", smooth)
 
         # threshold and invert
