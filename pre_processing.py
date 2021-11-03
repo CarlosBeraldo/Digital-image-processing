@@ -10,20 +10,26 @@ class PreProcessing:
         img = cv2.imread(image_path)
 
         # convert to gray
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        transform_image = PIL.Image.fromarray(img)
+        transform_image = ImageOps.grayscale(transform_image)
+
+        enhancer = ImageEnhance.Contrast(transform_image)
+        factor = 0.7
+        img_output = enhancer.enhance(factor)
+        opencvImage = cv2.cvtColor(np.array(img_output), cv2.COLOR_RGB2BGR)
+        cv2.imshow("opencvImage", opencvImage)
+
+        gray = cv2.cvtColor(opencvImage, cv2.COLOR_BGR2GRAY)
         # eq = cv2.equalizeHist(gray)
         smooth = cv2.GaussianBlur(gray, (7, 7), 0)
+        cv2.imshow("smooth", smooth)
 
         # threshold and invert
-        thresh1 = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        ret, thresh1 = cv2.threshold(smooth, 35, 255, cv2.THRESH_BINARY)
 
-        # kernel = np.ones((2, 2), np.uint8)
-        # closing = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel, iterations=8)
-        # # remoção do background utilizando a dilatação aplicando o kernal
-        # sure_bg = cv2.dilate(closing, kernel, iterations=3)
-
-        thresh1 = 255 - thresh1
         cv2.imshow("thresh", thresh1)
+        thresh1 = 255 - thresh1
 
         # remove borders
         # count number of white pixels in columns as new 1D array
