@@ -1,8 +1,10 @@
 from tkinter import *
 from tkinter import messagebox, filedialog
-from PIL import ImageTk
+from PIL import ImageTk, ImageOps
 import PIL.Image
 import os
+from pre_processing import *
+import cv2
 
 
 class Application(Frame):
@@ -89,27 +91,22 @@ class Application(Frame):
         self.imagepathdisplay.delete(0, END)
         self.imagepathdisplay.insert(0, filename)
         self.imagepathdisplay.configure(state="readonly")
+        self.imagepath = filename
         img = ImageTk.PhotoImage(img)
         self.imgpanel.configure(image=img)
         self.img = img
 
     def openNewWindow(self):
-
-        # Toplevel object which will
-        # be treated as a new window
         newWindow = Toplevel(self)
+        newWindow.title("Pré-Processamento")
+        newWindow.minsize(720, 700)
 
-        # sets the title of the
-        # Toplevel widget
-        a = 10 * 2
-        newWindow.title("New Window")
+        result_image = PreProcessing.pre_process(self.imagepath)
+        transform_image = PIL.Image.fromarray(result_image)
+        # transform_image = ImageOps.grayscale(transform_image)
 
-        # sets the geometry of toplevel
-        newWindow.geometry("200x200")
-
-        # A Label widget to show in toplevel
-        Label(newWindow, text=a).pack()
-        Label(newWindow, image=self.img).pack()
+        self.image = ImageTk.PhotoImage(transform_image)
+        Label(newWindow, image=self.image).pack()
 
 
 root = Tk()
