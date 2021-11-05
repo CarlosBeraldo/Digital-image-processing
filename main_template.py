@@ -101,12 +101,41 @@ class Application(Frame):
         newWindow.title("Pré-Processamento")
         newWindow.minsize(720, 700)
 
-        result_image = PreProcessing.pre_process(self.imagepath)
+        extractWindow = Toplevel(self)
+        extractWindow.title("Extracao de Caracteristica")
+        extractWindow.minsize(720, 700)
+
+        result_image, opencv = PreProcessing.pre_process(self.imagepath)
         transform_image = PIL.Image.fromarray(result_image)
         # transform_image = ImageOps.grayscale(transform_image)
+        self.imagepreprocessing = ImageTk.PhotoImage(transform_image)
+        Label(
+            newWindow,
+            text="Pre processamento",
+            bg="light gray",
+        ).grid(row=0, column=0)
+        Label(newWindow, image=self.imagepreprocessing).grid(row=1, column=0)
 
-        self.image = ImageTk.PhotoImage(transform_image)
-        Label(newWindow, image=self.image).pack()
+        segimage = PreProcessing.segmentationProcess(result_image, opencv)
+        transform_image = PIL.Image.fromarray(segimage)
+        self.imageseg = ImageTk.PhotoImage(transform_image)
+        Label(
+            newWindow,
+            text="Segmentacao",
+            bg="light gray",
+        ).grid(row=0, column=1)
+        Label(newWindow, image=self.imageseg).grid(row=1, column=1)
+
+        ######
+        eqimage = PreProcessing.featureExtration(segimage)
+        transform_image = PIL.Image.fromarray(eqimage)
+        self.imageeq = ImageTk.PhotoImage(transform_image)
+        Label(
+            extractWindow,
+            text="Segmentacao",
+            bg="light gray",
+        ).grid(row=0, column=0)
+        Label(extractWindow, image=self.imageeq).grid(row=1, column=0)
 
 
 root = Tk()
