@@ -21,6 +21,7 @@ class Application(Frame):
         self.titulo.pack(pady=5)
 
         self.selimg = Button(
+            master,
             text="Abrir Imagem",
             command=self.open_img,
             relief=RAISED,
@@ -32,6 +33,7 @@ class Application(Frame):
         self.selimg.pack()
 
         self.imagepathdisplay = Entry(
+            master,
             text="Caminho para imagem",
             fg="gray",
             width=40,
@@ -43,7 +45,11 @@ class Application(Frame):
         self.imagepathdisplay.pack()
 
         self.imglabel = Label(
-            text="Pré visualização", font=("Consolas 10"), pady=5, bg="light gray"
+            master,
+            text="Pré visualização",
+            font=("Consolas 10"),
+            pady=5,
+            bg="light gray",
         )
         self.imglabel.pack()
 
@@ -54,6 +60,7 @@ class Application(Frame):
         self.imgpanel.pack()
 
         self.startprocess = Button(
+            master,
             text="Começar",
             command=self.openNewWindow,
             relief=RAISED,
@@ -65,6 +72,7 @@ class Application(Frame):
         self.startprocess.pack(side=RIGHT, anchor=SE, pady=5)
 
         self.closeprocess = Button(
+            master,
             text="Sair",
             command=root.destroy,
             relief=RAISED,
@@ -92,7 +100,12 @@ class Application(Frame):
         self.imagepathdisplay.insert(0, filename)
         self.imagepathdisplay.configure(state="readonly")
         self.imagepath = filename
-        img = ImageTk.PhotoImage(img)
+        img = cv2.imread(self.imagepath)
+        transform_image = PIL.Image.fromarray(img)
+        transform_image = ImageOps.grayscale(transform_image)
+        # width, height = img.size
+        # img = img.resize((round(width / 7), round(height / 7)), PIL.Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(transform_image)
         self.imgpanel.configure(image=img)
         self.img = img
 
@@ -132,10 +145,20 @@ class Application(Frame):
         self.imageeq = ImageTk.PhotoImage(transform_image)
         Label(
             extractWindow,
-            text="Segmentacao",
+            text="Extração caracteristica",
             bg="light gray",
         ).grid(row=0, column=0)
         Label(extractWindow, image=self.imageeq).grid(row=1, column=0)
+
+        cannyimage = PreProcessing.edgeDetection(eqimage, self.imagepath)
+        transform_image = PIL.Image.fromarray(cannyimage)
+        self.cannyimage = ImageTk.PhotoImage(transform_image)
+        Label(
+            extractWindow,
+            text="Canny",
+            bg="light gray",
+        ).grid(row=0, column=1)
+        Label(extractWindow, image=self.cannyimage).grid(row=1, column=1)
 
 
 root = Tk()

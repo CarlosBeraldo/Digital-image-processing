@@ -32,7 +32,6 @@ class PreProcessing:
     def segmentationProcess(smooth, image_cv, threshold=35):
         # threshold and invert
         ret, thresh1 = cv2.threshold(smooth, threshold, 255, cv2.THRESH_BINARY)
-        cv2.imshow("thresh1", thresh1)
         thresh1 = 255 - thresh1
 
         # remove borders
@@ -89,11 +88,9 @@ class PreProcessing:
         opencvImage = cv2.cvtColor(
             np.array(PreProcessing.brightnessEnhance(image_pre, 0.6)), cv2.COLOR_RGB2BGR
         )
-        cv2.imshow("brightness", opencvImage)
         img_to_yuv = cv2.cvtColor(opencvImage, cv2.COLOR_BGR2YUV)
         img_to_yuv[:, :, 0] = cv2.equalizeHist(img_to_yuv[:, :, 0])
         hist_equalization_result = cv2.cvtColor(img_to_yuv, cv2.COLOR_YUV2BGR)
-        cv2.imshow("equalidado", hist_equalization_result)
 
         # img = cv2.resize(hist_equalization_result, (800, 800))
         # cv2.normalize(img, img, 0, 255, cv.NORM_MINMAX)
@@ -102,9 +99,47 @@ class PreProcessing:
         # eq = cv2.equalizeHist(gray)
         smooth = cv2.GaussianBlur(gray, (3, 3), 0)
 
-        result = PreProcessing.segmentationProcess(
-            smooth, hist_equalization_result, 213
-        )
+        # result = PreProcessing.segmentationProcess(
+        #     smooth, hist_equalization_result, 235
+        # )
+        ret, thresh1 = cv2.threshold(smooth, 240, 255, cv2.THRESH_TOZERO)
+
+        kernel = np.ones((5, 5), np.uint8)
+        erosion = cv2.erode(thresh1, kernel)
+
+        cv2.imshow("limiar", thresh1)
+        cv2.imshow("erosion", erosion)
         # gray = cv2.cvtColor(image_pre, cv2.COLOR_BGR2GRAY)
         # eq = cv2.equalizeHist(gray)
-        return result
+        return erosion
+
+    def edgeDetection(region_image, image_path):
+
+        image = cv2.imread(image_path)
+        tight = cv2.Canny(region_image, 240, 250)
+        rgb = cv2.cvtColor(
+            tight, cv2.COLOR_GRAY2RGB
+        )  # RGB for matplotlib, BGR for imshow() !
+
+        # step 2: now all edges are white (255,255,255). to make it red, multiply with another array:
+        rgb *= np.array((0, 0, 1), np.uint8)  # set g and b to 0, leaves red :)
+
+        # step 3: compose:
+        out = np.bitwise_or(rgb, rgb)
+
+        out = cv2.resize(
+            out, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_AREA
+        )
+
+        # add a alpha layer in the images
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
+        out = cv2.cvtColor(out, cv2.COLOR_RGB2RGBA)
+
+        # blending the images
+        added_image = cv2.addWeighted(image, 1, out, 1, 0)
+
+        cv2.imshow("mesclado", added_image)
+        added_image = cv2.cvtColor(added_image, cv2.COLOR_RGBA2BGR)
+
+        # comp_a = cv2.cvtColor(comp_a, cv2.COLOR_RGBA2RGB)
+        return added_image
