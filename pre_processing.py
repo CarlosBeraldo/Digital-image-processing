@@ -38,13 +38,13 @@ class PreProcessing:
 
         # make mask from contour
         mask = np.zeros_like(thresh, dtype=np.uint8)
-        teste = np.zeros_like(thresh, dtype=np.uint8)
+        # teste = np.zeros_like(thresh, dtype=np.uint8)
         # print([big_contour])
         mask = cv2.drawContours(mask, [big_contour], 0, 255, -1)
 
-        result_img = cv2.cvtColor(teste, cv2.COLOR_GRAY2RGB)
+        # result_img = cv2.cvtColor(teste, cv2.COLOR_GRAY2RGB)
 
-        teste = cv2.drawContours(result_img, [big_contour], 0, (255, 0, 0), -1)
+        # teste = cv2.drawContours(result_img, [big_contour], 0, (255, 0, 0), -1)
 
         # cv2.namedWindow("img", cv2.WINDOW_NORMAL)
         # cv2.imshow("img", teste)
@@ -136,13 +136,12 @@ class PreProcessing:
         rgb = cv2.cvtColor(
             tight, cv2.COLOR_GRAY2BGR
         )  # RGB for matplotlib, BGR for imshow() !
-        print(tight.shape)
 
         # step 2: now all edges are white (255,255,255). to make it red, multiply with another array:
         rgb *= np.array((0, 1, 0), np.uint8)  # set g and b to 0, leaves red :)
 
         # step 3: compose:
-        # cv2.imshow("rgb", rgb)
+        cv2.imshow("rgb", rgb)
 
         teste = np.bitwise_or(image, rgb)
         # cv2.imshow("teste", teste)
