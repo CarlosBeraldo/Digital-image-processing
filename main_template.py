@@ -2,9 +2,8 @@ from tkinter import *
 from tkinter import messagebox, filedialog
 from PIL import ImageTk, ImageOps
 import PIL.Image
-import os
 from pre_processing import *
-import cv2
+import timeit
 
 
 class Application(Frame):
@@ -113,78 +112,43 @@ class Application(Frame):
         self.imagepathdisplay.insert(0, filename)
         self.imagepathdisplay.configure(state="readonly")
         self.imagepath = filename
-        # img = cv2.imread(self.imagepath)
-        # transform_image = PIL.Image.fromarray(img)
-        # transform_image = ImageOps.grayscale(transform_image)
-        # width, height = img.size
         img = img.resize((700, 700), PIL.Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img)
         self.imgpanel.configure(image=img)
         self.img = img
 
     def openNewWindow(self):
-        # newWindow = Toplevel(self)
-        # newWindow.title("Pré-Processamento")
-        # newWindow.minsize(720, 700)
+        inicio = timeit.default_timer()
 
-        # extractWindow = Toplevel(self)
-        # extractWindow.title("Extracao de Caracteristica")
-        # extractWindow.minsize(720, 700)
-
-        result_image, opencv = PreProcessing.pre_process(self.imagepath)
+        result_image, opencv = DigitalImageProcessing.pre_process(self.imagepath)
         transform_image = PIL.Image.fromarray(result_image)
-        # transform_image = ImageOps.grayscale(transform_image)
-        self.imagepreprocessing = ImageTk.PhotoImage(transform_image)
-        # Label(
-        #     newWindow,
-        #     text="Pre processamento",
-        #     bg="light gray",
-        # ).grid(row=0, column=0)
-        # Label(newWindow, image=self.imagepreprocessing).grid(row=1, column=0)
 
-        segimage = PreProcessing.segmentationProcess(result_image, opencv)
+        self.imagepreprocessing = ImageTk.PhotoImage(transform_image)
+
+        segimage = DigitalImageProcessing.segmentationProcess(result_image, opencv)
         transform_image = PIL.Image.fromarray(segimage)
         self.imageseg = ImageTk.PhotoImage(transform_image)
-        # Label(
-        #     newWindow,
-        #     text="Segmentacao",
-        #     bg="light gray",
-        # ).grid(row=0, column=1)
-        # Label(newWindow, image=self.imageseg).grid(row=1, column=1)
 
-        ######
-        eqimage = PreProcessing.featureExtration(segimage)
+        eqimage = DigitalImageProcessing.featureExtration(segimage)
         transform_image = PIL.Image.fromarray(eqimage)
         self.imageeq = ImageTk.PhotoImage(transform_image)
-        # Label(
-        #     extractWindow,
-        #     text="Extração caracteristica",
-        #     bg="light gray",
-        # ).grid(row=0, column=0)
-        # Label(extractWindow, image=self.imageeq).grid(row=1, column=0)
 
-        cannyimage = PreProcessing.edgeDetection(eqimage, self.imagepath)
+        cannyimage = DigitalImageProcessing.edgeDetection(eqimage, self.imagepath)
         transform_image = PIL.Image.fromarray(cannyimage)
         self.img_result = ImageTk.PhotoImage(transform_image)
         self.imgpanel_2.configure(image=self.img_result)
-        # Label(
-        #     extractWindow,
-        #     text="Canny",
-        #     bg="light gray",
-        # ).grid(row=0, column=1)
-        # Label(extractWindow, image=self.cannyimage).grid(row=1, column=1)
+
+        fim = timeit.default_timer()
+        print("duracao: %f" % (fim - inicio))
 
 
 root = Tk()
-# root.minsize(720, 860)
-w = 1620  # width for the Tk root
-h = 860  # height for the Tk root
+w = 1620
+h = 860
 
-# get screen width and height
-ws = root.winfo_screenwidth()  # width of the screen
-hs = root.winfo_screenheight()  # height of the screen
+ws = root.winfo_screenwidth()
+hs = root.winfo_screenheight()
 
-# calculate x and y coordinates for the Tk root window
 x = (ws / 2) - (w / 2)
 y = (hs / 2) - (h / 2)
 root.geometry("%dx%d+%d+%d" % (w, h, x, y))
